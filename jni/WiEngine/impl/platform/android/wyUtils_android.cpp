@@ -35,6 +35,7 @@
 #include "png.h"
 #include "wyDirector.h"
 #include "wyLog.h"
+#include "wyMD5.h"
 #include <errno.h>
 #include <unistd.h>
 #include <math.h>
@@ -59,6 +60,7 @@ typedef enum {
 
 // preload classes
 extern jclass gClass_Director;
+extern jclass gClass_Utilities;
 
 // WYPoint class fields
 extern jfieldID g_fid_WYPoint_x;
@@ -162,6 +164,14 @@ extern jfieldID g_fid_WYSize_height;
 // FileDescriptor class field
 extern jfieldID g_fid_FileDescriptor_descriptor;
 
+// Utilities
+extern jmethodID g_mid_Utilities_createLabelBitmap_by_fontPath;
+extern jmethodID g_mid_Utilities_createLabelBitmap_by_fontStyle;
+extern jmethodID g_mid_Utilities_calculateTextSize_by_fontPath;
+extern jmethodID g_mid_Utilities_calculateTextSize_by_fontStyle;
+extern jmethodID g_mid_Utilities_loadAsset;
+extern jmethodID g_mid_Utilities_scaleImage;
+
 // Director
 extern jmethodID g_mid_Director_getInstance;
 extern jmethodID g_mid_Director_showConfirmDialog;
@@ -214,9 +224,6 @@ extern jmethodID g_mid_Intent_putExtra_Parcelable;
 
 // Map
 extern jmethodID g_mid_Map_put;
-
-// aal
-extern wyAAL gAAL;
 
 #ifdef __cplusplus
 extern "C" {
@@ -1159,79 +1166,131 @@ const char16_t* wyUtils::getString16(int resId) {
 }
 
 const char* wyUtils::utf16toutf8(const char16_t* s16) {
-	char* s8 = NULL;
+	JNIEnv* env = getJNIEnv();
+	int len = strlen16(s16);
+	jstring s = env->NewString(s16, len);
+	jsize len8 = env->GetStringUTFLength(s);
+	const char* b = (const char*)env->GetStringUTFChars(s, NULL);
+	char* ret = (char*)wyCalloc(len8 + 1, sizeof(char));
+	memcpy(ret, b, len8 * sizeof(char));
+	env->ReleaseStringUTFChars(s, b);
+	env->DeleteLocalRef(s);
 
-	if(s16 == NULL) {
-		s8 = (char*)wyCalloc(1, sizeof(char));
-	} else {
-		s8 = (char*)gAAL.utf16toutf8(s16);
-	}
-
-	return (const char*)s8;
+	return ret;
 }
 
 const char* wyUtils::wctoutf8(const wchar_t* ws) {
-	char* s8 = NULL;
-
-	if(ws == NULL) {
-		s8 = (char*)wyCalloc(1, sizeof(char));
-	} else {
-		s8 = (char*)gAAL.wctoutf8(ws);
-	}
-
-	return (const char*)s8;
+	return NULL;
 }
 
 const char16_t* wyUtils::toUTF16(const char* s8) {
-	char16_t* s16 = NULL;
-	if(s8 == NULL) {
-		s16 = (char16_t*)wyCalloc(1, sizeof(char16_t));
-	} else {
-		return gAAL.toUTF16(s8);
-	}
-
-	return s16;
+	return NULL;
 }
 
 wySize wyUtils::calculateTextSize(const char* text, float fontSize, const char* fontPath, bool isFile, float width) {
-	// get font file data
-	size_t length;
-	char* data = loadRaw(fontPath, isFile, &length);
-
-	// call sal
-	size_t w, h;
-	gAAL.calculateTextSizeWithCustomFont(text, fontSize, data, length, width, &w, &h);
-
-	// free
-	wyFree(data);
+	// call jni
+	JNIEnv* env = getJNIEnv();
+	jstring jText = env->NewStringUTF(text);
+	jstring jFontPath = env->NewStringUTF(fontPath);
+	jobject jSize = env->CallStaticObjectMethod(gClass_Utilities,
+			g_mid_Utilities_calculateTextSize_by_fontPath,
+			jText,
+			fontSize,
+			jFontPath,
+			isFile,
+			width);
 
 	// create size
-	return wys(w, h);
+	wySize s = wyUtils_android::to_wySize(jSize);
+
+	// release
+	env->DeleteLocalRef(jText);
+	env->DeleteLocalRef(jFontPath);
+	env->DeleteLocalRef(jSize);
+
+	return s;
 }
 
 wySize wyUtils::calculateTextSize(const char* text, float fontSize, wyFontStyle style, const char* fontName, float width) {
-	size_t w, h;
-	gAAL.calculateTextSizeWithFont(text, fontSize, (style & BOLD) != 0, (style & ITALIC) != 0, fontName, width, &w, &h);
-	return wys(w, h);
+	// call jni
+	JNIEnv* env = getJNIEnv();
+	jstring jText = env->NewStringUTF(text);
+	jstring jFontName = env->NewStringUTF(fontName);
+	jobject jSize = env->CallStaticObjectMethod(gClass_Utilities,
+			g_mid_Utilities_calculateTextSize_by_fontStyle,
+			jText,
+			fontSize,
+			(int)style,
+			jFontName,
+			width);
+
+	// create size
+	wySize s = wyUtils_android::to_wySize(jSize);
+
+	// release
+	env->DeleteLocalRef(jText);
+	env->DeleteLocalRef(jFontName);
+	env->DeleteLocalRef(jSize);
+
+	return s;
 }
 
 const char* wyUtils::createLabelBitmap(const char* text, float fontSize, const char* fontPath, bool isFile, float width, wyTexture2D::TextAlignment alignment) {
-	// get font file data
-	size_t length;
-	char* data = loadRaw(fontPath, isFile, &length);
+	// call jni
+	JNIEnv* env = getJNIEnv();
+	jstring jText = env->NewStringUTF(text);
+	jstring jFontPath = env->NewStringUTF(fontPath == NULL ? "DroidSans" : fontPath);
+	jbyteArray jBytes = (jbyteArray)env->CallStaticObjectMethod(gClass_Utilities,
+			g_mid_Utilities_createLabelBitmap_by_fontPath,
+			jText,
+			fontSize,
+			jFontPath,
+			isFile,
+			width,
+			(int)alignment);
 
-	// create by sal layer
-	const char* bitmap = gAAL.createLabelBitmapWithCustomFont(text, fontSize, data, length, width, alignment);
+	// copy data
+	jsize len = env->GetArrayLength(jBytes);
+	char* data = (char*)malloc(len * sizeof(char));
+	jbyte* bytes = env->GetByteArrayElements(jBytes, NULL);
+	memcpy(data, bytes, sizeof(char) * len);
 
-	// free
-	wyFree(data);
+	// release
+	env->ReleaseByteArrayElements(jBytes, bytes, 0);
+	env->DeleteLocalRef(jText);
+	env->DeleteLocalRef(jFontPath);
+	env->DeleteLocalRef(jBytes);
 
-	return bitmap;
+	return data;
 }
 
 const char* wyUtils::createLabelBitmap(const char* text, float fontSize, wyFontStyle style, const char* fontName, float width, wyTexture2D::TextAlignment alignment) {
-	const char* bitmap = gAAL.createLabelBitmapWithFont(text, fontSize, (style & BOLD) != 0, (style & ITALIC) != 0, fontName, width, alignment);
-	return bitmap;
+	// call jni
+	JNIEnv* env = getJNIEnv();
+	jstring jText = env->NewStringUTF(text);
+	jstring jFontName = env->NewStringUTF(fontName);
+	jbyteArray jBytes = (jbyteArray)env->CallStaticObjectMethod(gClass_Utilities,
+			g_mid_Utilities_createLabelBitmap_by_fontStyle,
+			jText,
+			fontSize,
+			(int)style,
+			jFontName,
+			width,
+			(int)alignment);
+
+	// copy data
+	jsize len = env->GetArrayLength(jBytes);
+	char* data = (char*)malloc(len * sizeof(char));
+	jbyte* bytes = env->GetByteArrayElements(jBytes, NULL);
+	memcpy(data, bytes, sizeof(char) * len);
+
+	// release
+	env->ReleaseByteArrayElements(jBytes, bytes, 0);
+	env->DeleteLocalRef(jText);
+	env->DeleteLocalRef(jFontName);
+	env->DeleteLocalRef(jBytes);
+
+	return data;
 }
 
 bool wyUtils::deleteFile(const char* path) {
@@ -1502,214 +1561,80 @@ char* wyUtils::loadJPG(const char* data, size_t length, float* w, float* h, bool
 }
 
 char* wyUtils::loadRaw(int resId, size_t* outLen, float* outScale, bool noDecode) {
-	// open asset and get buffer
-	void* asset = gAAL.getAssetByResId(resId, outScale);
-	char* data = NULL;
-	if(asset != NULL)
-		data = (char*)gAAL.getAssetBuffer(asset);
-
-	// get length of data
-	size_t len = gAAL.getAssetLength(asset);
-
-	// make a copy of data
-	char* ret = NULL;
-	if(len > 0) {
-		ret = (char*)wyMalloc(len * sizeof(char));
-		memcpy(ret, data, len);
-	}
-
-	// free asset
-	if(asset != NULL) {
-		gAAL.closeAsset(asset);
-	}
-
-	// check decoder flag
-	if(!noDecode) {
-		if(gResDecoder != NULL && !gResDecoder->hasFlag(wyResourceDecoder::DECODE_RES))
-			noDecode = true;
-	}
-
-	// decode data
-	if(!noDecode) {
-		const char* decoded = decodeObfuscatedData(ret, len, outLen);
-		if(decoded != ret) {
-			wyFree(ret);
-			ret = (char*)decoded;
-		}	
-	} else {
-		if(outLen)
-			*outLen = len;
-	}
-
-	// return raw data
-	return ret;
+	return NULL;
 }
 
 char* wyUtils::loadRaw(const char* path, bool isFile, size_t* outLen, bool noDecode) {
-	if(path == NULL)
-		return NULL;
+	JNIEnv* env = getJNIEnv();
+	jstring jPath = env->NewStringUTF(path);
+	jbyteArray jBytes = (jbyteArray)env->CallStaticObjectMethod(gClass_Utilities,
+			g_mid_Utilities_loadAsset,
+			jPath,
+			isFile);
 
-	if(isFile) {
-		// open file
-		FILE* f = NULL;
-		if((f = fopen(path, "rb")) == NULL) {
-			LOGW("open file %s failed: %s", path, strerror(errno));
-			return NULL;
-		}
+	// copy data
+	jsize len = env->GetArrayLength(jBytes);
+	char* data = (char*)malloc(len * sizeof(char));
+	jbyte* bytes = env->GetByteArrayElements(jBytes, NULL);
+	memcpy(data, bytes, sizeof(char) * len);
 
-		// load from FILE pointer, it will close file
-		return loadRaw(f, outLen, noDecode);
-	} else {
-		// open asset and get buffer
-		void* asset = gAAL.getAsset(path);
-		char* data = NULL;
-		if(asset != NULL)
-			data = (char*)gAAL.getAssetBuffer(asset);
-
-		// save out len
-		size_t len = gAAL.getAssetLength(asset);
-		if(outLen != NULL) {
-			*outLen = len;
-		}
-
-		// make a copy of data
-		char* ret = NULL;
-		if(len > 0) {
-			ret = (char*)wyMalloc(len * sizeof(char));
-			memcpy(ret, data, len);
-		}
-
-		// free asset
-		if(asset != NULL) {
-			gAAL.closeAsset(asset);
-		}
-
-		// check decoder flag
-		if(!noDecode) {
-			if(gResDecoder != NULL && !gResDecoder->hasFlag(wyResourceDecoder::DECODE_ASSETS))
-				noDecode = true;
-		}
-
-		// decode data
-		if(!noDecode) {
-			const char* decoded = decodeObfuscatedData(ret, len, outLen);
-			if(decoded != ret) {
-				wyFree(ret);
-				ret = (char*)decoded;
-			}	
-		}
-
-		// return raw data
-		return ret;
+	// len
+	if(outLen) {
+		*outLen = len;
 	}
+
+	// release
+	env->ReleaseByteArrayElements(jBytes, bytes, 0);
+	env->DeleteLocalRef(jPath);
+	env->DeleteLocalRef(jBytes);
+
+	// decode
+	const char* decoded = decodeObfuscatedData(data, *outLen, outLen);
+	if(decoded != data) {
+		wyFree(data);
+		data = (char*)decoded;
+	}
+
+	return data;
 }
 
 char* wyUtils::loadCString(const char* path, bool isFile) {
-	if(isFile) {
-		// open file
-		FILE* f = NULL;
-		if((f = fopen(path, "rb")) == NULL) {
-			LOGW("open file %s failed: %s", path, strerror(errno));
-			return NULL;
-		}
-
-		// get readable length
-		size_t length = getFileSize(f);
-
-		// create buffer
-		char* data = NULL;
-		if ((data = (char*)wyMalloc(length + 1)) == NULL) {
-			LOGW("allocate data buffer failed");
-			fclose(f);
-			return NULL;
-		}
-
-		// read data
-		if(fread(data, sizeof(char), length, f) != length) {
-			LOGW("read data failed");
-			fclose(f);
-			wyFree(data);
-			return NULL;
-		}
-
-		// set zero
-		data[length] = 0;
-
-		// close file
-		fclose(f);
-
-		return data;
-	} else {
-		// open asset and get buffer
-		void* asset = gAAL.getAsset(path);
-		char* data = NULL;
-		if(asset != NULL)
-			data = (char*)gAAL.getAssetBuffer(asset);
-
-		// save out len
-		size_t len = gAAL.getAssetLength(asset);
-
-		// create buffer
-		char* ret = NULL;
-		if ((ret = (char*)wyMalloc(len + 1)) == NULL) {
-			LOGW("allocate data buffer failed");
-			return NULL;
-		}
-
-		// copy
-		memcpy(ret, data, len);
-		ret[len] = 0;
-
-		// free asset
-		if(asset != NULL) {
-			gAAL.closeAsset(asset);
-		}
-
-		// return c string
-		return ret;
-	}
+	return NULL;
 }
 
 char* wyUtils::loadCString(int resId) {
-	// open asset and get buffer
-	void* asset = gAAL.getAssetByResId(resId, NULL);
-	char* data = NULL;
-	if(asset != NULL)
-		data = (char*)gAAL.getAssetBuffer(asset);
-
-	// save out len
-	size_t len = gAAL.getAssetLength(asset);
-
-	// create buffer
-	char* ret = NULL;
-	if ((ret = (char*)wyMalloc(len + 1)) == NULL) {
-		LOGW("allocate data buffer failed");
-		return NULL;
-	}
-
-	// copy
-	memcpy(ret, data, len);
-	ret[len] = 0;
-
-	// free asset
-	if(asset != NULL) {
-		gAAL.closeAsset(asset);
-	}
-
-	// return c string
-	return ret;
-}
-
-char* wyUtils::scalePVR(wyPVRFormat format, char* originData, int originWidth, int originHeight, float scale) {
-	return gAAL.scalePVR((int)format, originData, originWidth, originHeight, scale);
+	return NULL;
 }
 
 char* wyUtils::scaleImage(char* originData, int originWidth, int originHeight, float scaleX, float scaleY) {
-	// no scale? just return
-	if(scaleX == 1.0f && scaleY == 1.0f)
-		return originData;
+	JNIEnv* env = getJNIEnv();
 
-	return gAAL.scaleImage(kARGB_8888_Config, originData, originWidth, originHeight, scaleX, scaleY);
+	// java array
+	jsize len = originWidth * originHeight * 4;
+	jbyteArray jArray = env->NewByteArray(len);
+	env->SetByteArrayRegion(jArray, 0, len, (const jbyte*)originData);
+
+	// call
+	jbyteArray jBytes = (jbyteArray)env->CallStaticObjectMethod(gClass_Utilities,
+			g_mid_Utilities_scaleImage,
+			jArray,
+			originWidth,
+			originHeight,
+			scaleX,
+			scaleY);
+
+	// copy data
+	len = env->GetArrayLength(jBytes);
+	char* data = (char*)malloc(len * sizeof(char));
+	jbyte* bytes = env->GetByteArrayElements(jBytes, NULL);
+	memcpy(data, bytes, sizeof(char) * len);
+
+	// release
+	env->ReleaseByteArrayElements(jBytes, bytes, 0);
+	env->DeleteLocalRef(jArray);
+	env->DeleteLocalRef(jBytes);
+
+	return data;
 }
 
 const char* wyUtils::mapLocalPath(const char* path) {
@@ -1755,23 +1680,7 @@ bool wyUtils::isPathExistent(const char* path) {
 }
 
 bool wyUtils::isResExistent(const char* path, bool isFile) {
-	if(isFile) {
-		return isPathExistent(path);
-	} else {
-		// open asset
-		void* asset = gAAL.getAsset(path);
-
-		// is NULL?
-		bool exist = asset != NULL;
-
-		// free asset
-		if(asset != NULL) {
-			gAAL.closeAsset(asset);
-		}
-
-		// return
-		return exist;
-	}
+	return true;
 }
 
 JNIEnv* wyUtils::getJNIEnv() {
@@ -1779,7 +1688,84 @@ JNIEnv* wyUtils::getJNIEnv() {
 }
 
 void wyUtils::addAndroidStrings(const char* fileName, const char* langId) {
-    
+	// no need to add android strings in android platform
+}
+
+bool wyUtils::verifySignature(void* validSign, size_t len) {
+	// basic check
+	if(!validSign)
+		return true;
+
+	// get env
+	JNIEnv* env = getJNIEnv();
+
+	// get package manager
+	wyGLContext ctx = wyDirector::getInstance()->getContext();
+	jclass klazz = env->GetObjectClass(ctx);
+	jmethodID mid = env->GetMethodID(klazz, "getPackageManager", "()Landroid/content/pm/PackageManager;");
+	jobject packageManager = env->CallObjectMethod(ctx, mid);
+
+	// get package name
+	mid = env->GetMethodID(klazz, "getPackageName", "()Ljava/lang/String;");
+	jstring packageName = (jstring) env->CallObjectMethod(ctx, mid);
+
+	// release context class reference
+	env->DeleteLocalRef(klazz);
+
+	// get package info
+	klazz = env->GetObjectClass(packageManager);
+	mid = env->GetMethodID(klazz, "getPackageInfo", "(Ljava/lang/String;I)Landroid/content/pm/PackageInfo;");
+	jint flags = env->GetStaticIntField(klazz, env->GetStaticFieldID(klazz, "GET_SIGNATURES", "I"));
+	jobject packageInfo = env->CallObjectMethod(packageManager, mid, packageName, flags);
+
+	// clea reference
+	env->DeleteLocalRef(klazz);
+	env->DeleteLocalRef(packageName);
+
+	// get first signature java object
+	klazz = env->GetObjectClass(packageInfo);
+	jobjectArray signatures = (jobjectArray)env->GetObjectField(packageInfo,
+			env->GetFieldID(klazz, "signatures", "[Landroid/content/pm/Signature;"));
+	jobject signature = env->GetObjectArrayElement(signatures, 0);
+
+	// clear reference
+	env->DeleteLocalRef(klazz);
+
+	// get byte array of signature
+	klazz = env->GetObjectClass(signature);
+	mid = env->GetMethodID(klazz, "toByteArray", "()[B");
+	jbyteArray certificate = (jbyteArray)env->CallObjectMethod(signature, mid);
+
+	// clear reference
+	env->DeleteLocalRef(klazz);
+	env->DeleteLocalRef(signature);
+
+	// md5
+	bool valid = true;
+	jsize cLen = env->GetArrayLength(certificate);
+	jbyte* cData = env->GetByteArrayElements(certificate, JNI_FALSE);
+	if (cLen > 0) {
+		const char* md5 = wyMD5::md5(cData, cLen);
+		size_t md5Len = strlen(md5);
+		if(md5Len != len) {
+			valid = false;
+		} else {
+			char* p = (char*)validSign;
+			for(size_t i = 0; i < md5Len; i++) {
+				if(md5[i] != p[i]) {
+					valid = false;
+					break;
+				}
+			}
+		}
+	}
+
+	// release
+	env->ReleaseByteArrayElements(certificate, cData, 0);
+	env->DeleteLocalRef(certificate);
+
+	// return
+	return valid;
 }
 
 #endif // #if ANDROID

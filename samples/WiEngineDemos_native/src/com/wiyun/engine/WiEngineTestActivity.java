@@ -46,15 +46,12 @@ import com.wiyun.engine.opengl.WYGLSurfaceView;
 
 public abstract class WiEngineTestActivity extends Activity implements IDirectorLifecycleListener {
 	static {
-		System.loadLibrary("wiskia");
-		System.loadLibrary("xml2");
 		System.loadLibrary("wiengine");
 		System.loadLibrary("lua");
 		System.loadLibrary("chipmunk");
 		System.loadLibrary("box2d");
 		System.loadLibrary("wisound");
 		System.loadLibrary("winetwork");
-		System.loadLibrary("json");
 		System.loadLibrary("iap");
 		System.loadLibrary("wienginedemos");
 	}

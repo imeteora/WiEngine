@@ -3,7 +3,7 @@
         WiEngine Android SDK Ant build file
     </description>
 
-	<property name="version" value="3.10.2"/>
+	<property name="version" value="3.10.3"/>
 	<property name="build" value="bin/classes"/>
 	<property name="lib.name" value="WiEngine.jar"/>
 	<property name="lib.chipmunk.name" value="WiEngine-chipmunk.jar"/>
@@ -80,23 +80,19 @@
 				<include name="**/*.inl"/>
 				<exclude name="**/jni_init.h"/>
 				<exclude name="android_adapter/**"/>
-				<exclude name="cutils/**"/>
-				<exclude name="utils/**"/>
 				<exclude name="expat/**"/>
 				<exclude name="freetype/**"/>
-				<exclude name="skia/**"/>
 				<exclude name="Box2D/binding/**"/>
 				<exclude name="chipmunk/binding/**"/>
-				<exclude name="libcurl/lib/**"/>
 				<exclude name="libmpg123/**"/>
 				<exclude name="libjpeg/**"/>
 				<exclude name="libnsbmp/**"/>
 				<exclude name="libpng/**"/>
 				<exclude name="libxml2/*.h"/>
+				<exclude name="libpvr/platform/**"/>
 				<exclude name="lua/binding/**"/>
 				<exclude name="openal/**"/>
 				<exclude name="vorbis/**"/>
-				<exclude name="json/**"/>
 				<exclude name="yajl/**"/>
 				<exclude name="iap/**"/>
 				<exclude name="sqlite3/**"/>

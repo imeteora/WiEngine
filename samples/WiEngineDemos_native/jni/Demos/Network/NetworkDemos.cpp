@@ -2,7 +2,6 @@
 #include "common.h"
 #include "WiEngine.h"
 #include "WiEngine-Network.h"
-#include "WiEngine-JSON.h"
 
 namespace Network {
 	class wyDownloadImageTestLayer : public wyLayer, public wyHttpListener {
@@ -25,8 +24,8 @@ namespace Network {
                 m_bg(NULL),
                 m_bgTex(NULL) {
             // create button
-            wyNinePatchSprite* normal = wyNinePatchSprite::make(wyTexture2D::makePNG(RES("R.drawable.btn_normal")), wyr(DP(9), DP(7), DP(22), DP(28)));
-            wyNinePatchSprite* pressed = wyNinePatchSprite::make(wyTexture2D::makePNG(RES("R.drawable.btn_pressed")), wyr(DP(9), DP(7), DP(22), DP(28)));
+            wyNinePatchSprite* normal = wyNinePatchSprite::make(wyTexture2D::make(RES("R.drawable.btn_normal")), wyr(DP(9), DP(7), DP(22), DP(28)));
+            wyNinePatchSprite* pressed = wyNinePatchSprite::make(wyTexture2D::make(RES("R.drawable.btn_pressed")), wyr(DP(9), DP(7), DP(22), DP(28)));
             normal->setContentSize(DP(150), DP(44));
             pressed->setContentSize(DP(150), DP(44));
             wyButton* button = new wyButton(normal, pressed, NULL, NULL, NULL, wyTargetSelector::make(this, SEL(wyDownloadImageTestLayer::onDownloadStyle1)));
@@ -73,7 +72,7 @@ namespace Network {
 		}
         
         void createProgressTimer() {
-            m_progressTimer = new wyProgressTimer(wyTexture2D::makePNG(RES("R.drawable.bar")));
+            m_progressTimer = new wyProgressTimer(wyTexture2D::make(RES("R.drawable.bar")));
             m_progressTimer->setPosition(wyDevice::winWidth / 2, wyDevice::winHeight / 2);
             m_progressTimer->setStyle(HORIZONTAL_BAR_LR);
             addChildLocked(m_progressTimer);
@@ -141,7 +140,7 @@ namespace Network {
             }
             
             // create new bg
-            m_bgTex = wyTexture2D::makeFilePNG(m_output->getPath());
+            m_bgTex = wyTexture2D::makeFile(m_output->getPath());
 			m_bgTex->retain();
             m_bg = wySprite::make(m_bgTex);
             m_bg->setPosition(wyDevice::winWidth / 2, wyDevice::winHeight / 2);
@@ -184,8 +183,8 @@ namespace Network {
 			m_output->retain();
 
             // create button
-            wyNinePatchSprite* normal = wyNinePatchSprite::make(wyTexture2D::makePNG(RES("R.drawable.btn_normal")), wyr(DP(9), DP(7), DP(22), DP(28)));
-            wyNinePatchSprite* pressed = wyNinePatchSprite::make(wyTexture2D::makePNG(RES("R.drawable.btn_pressed")), wyr(DP(9), DP(7), DP(22), DP(28)));
+            wyNinePatchSprite* normal = wyNinePatchSprite::make(wyTexture2D::make(RES("R.drawable.btn_normal")), wyr(DP(9), DP(7), DP(22), DP(28)));
+            wyNinePatchSprite* pressed = wyNinePatchSprite::make(wyTexture2D::make(RES("R.drawable.btn_pressed")), wyr(DP(9), DP(7), DP(22), DP(28)));
             normal->setContentSize(DP(300), DP(44));
             pressed->setContentSize(DP(300), DP(44));
             wyButton* button = new wyButton(normal, pressed, NULL, NULL, NULL, wyTargetSelector::make(this, SEL(wyIPQueryTestLayer::onQueryIP)));
@@ -259,8 +258,8 @@ namespace Network {
 			m_output->retain();
 
             // create button
-            wyNinePatchSprite* normal = wyNinePatchSprite::make(wyTexture2D::makePNG(RES("R.drawable.btn_normal")), wyr(DP(9), DP(7), DP(22), DP(28)));
-            wyNinePatchSprite* pressed = wyNinePatchSprite::make(wyTexture2D::makePNG(RES("R.drawable.btn_pressed")), wyr(DP(9), DP(7), DP(22), DP(28)));
+            wyNinePatchSprite* normal = wyNinePatchSprite::make(wyTexture2D::make(RES("R.drawable.btn_normal")), wyr(DP(9), DP(7), DP(22), DP(28)));
+            wyNinePatchSprite* pressed = wyNinePatchSprite::make(wyTexture2D::make(RES("R.drawable.btn_pressed")), wyr(DP(9), DP(7), DP(22), DP(28)));
             normal->setContentSize(DP(300), DP(44));
             pressed->setContentSize(DP(300), DP(44));
             wyButton* button = new wyButton(normal, pressed, NULL, NULL, NULL, wyTargetSelector::make(this, SEL(wyHttpPostTestLayer::onPost)));

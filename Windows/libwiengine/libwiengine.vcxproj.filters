@@ -34,9 +34,6 @@
     <Filter Include="gridactions">
       <UniqueIdentifier>{1f0a21fc-9d69-465f-b3b5-14df5a2b39c7}</UniqueIdentifier>
     </Filter>
-    <Filter Include="mfs">
-      <UniqueIdentifier>{c5549f67-d56d-47f7-839f-a10880e1bc72}</UniqueIdentifier>
-    </Filter>
     <Filter Include="nodes">
       <UniqueIdentifier>{091eb826-7667-4b17-a2d3-2736c185ec52}</UniqueIdentifier>
     </Filter>
@@ -75,6 +72,12 @@
     </Filter>
     <Filter Include="platform\windows\KHR">
       <UniqueIdentifier>{258f8cf1-df79-48c5-9ddb-a47559a5d890}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="skeletalanim">
+      <UniqueIdentifier>{1fad25db-8a2f-416f-b38b-dd7c5720bfdf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="json">
+      <UniqueIdentifier>{01c11f85-6604-48c0-8095-b7df79d41860}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -609,18 +612,6 @@
     <ClInclude Include="..\..\jni\WiEngine\include\gridactions\wyGridFlipX.h">
       <Filter>gridactions</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\jni\WiEngine\include\mfs\PVRTResourceFile.h">
-      <Filter>mfs</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\jni\WiEngine\include\mfs\PVRTString.h">
-      <Filter>mfs</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\jni\WiEngine\include\mfs\PVRTGlobal.h">
-      <Filter>mfs</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\jni\WiEngine\include\mfs\PVRTMemoryFileSystem.h">
-      <Filter>mfs</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\jni\WiEngine\include\nodes\wyButton.h">
       <Filter>nodes</Filter>
     </ClInclude>
@@ -1008,9 +999,6 @@
     <ClInclude Include="..\..\jni\WiEngine\include\types\wyPointList.h">
       <Filter>types</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\jni\WiEngine\include\types\wyPVR.h">
-      <Filter>types</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\jni\WiEngine\include\types\wyQuad2D.h">
       <Filter>types</Filter>
     </ClInclude>
@@ -1164,6 +1152,57 @@
     </ClInclude>
     <ClInclude Include="..\..\jni\WiEngine\include\common\wyBuildConfig.h">
       <Filter>common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\jni\WiEngine\include\skeletalanim\wySkeleton.h">
+      <Filter>skeletalanim</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\jni\WiEngine\include\skeletalanim\wySkinAttachment.h">
+      <Filter>skeletalanim</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\jni\WiEngine\include\skeletalanim\wySlot.h">
+      <Filter>skeletalanim</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\jni\WiEngine\include\skeletalanim\wySlotTransform.h">
+      <Filter>skeletalanim</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\jni\WiEngine\include\skeletalanim\wySpineLoader.h">
+      <Filter>skeletalanim</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\jni\WiEngine\include\skeletalanim\wyTransform.h">
+      <Filter>skeletalanim</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\jni\WiEngine\include\skeletalanim\wyAttachment.h">
+      <Filter>skeletalanim</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\jni\WiEngine\include\skeletalanim\wyBone.h">
+      <Filter>skeletalanim</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\jni\WiEngine\include\skeletalanim\wyBoneTransform.h">
+      <Filter>skeletalanim</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\jni\WiEngine\include\skeletalanim\wySkeletalAnimation.h">
+      <Filter>skeletalanim</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\jni\WiEngine\include\skeletalanim\wySkeletalAnimationCache.h">
+      <Filter>skeletalanim</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\jni\WiEngine\include\skeletalanim\wySkeletalAnimationListener.h">
+      <Filter>skeletalanim</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\jni\WiEngine\include\skeletalanim\wySkeletalSprite.h">
+      <Filter>skeletalanim</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\jni\WiEngine\include\json\wyJSONObject.h">
+      <Filter>json</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\jni\WiEngine\include\json\wyJSONParser.h">
+      <Filter>json</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\jni\WiEngine\include\json\wyJSONValue.h">
+      <Filter>json</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\jni\WiEngine\include\json\wyJSONArray.h">
+      <Filter>json</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1683,12 +1722,6 @@
     <ClCompile Include="..\..\jni\WiEngine\impl\gridactions\wyGrid3DAction.cpp">
       <Filter>gridactions</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\jni\WiEngine\impl\mfs\PVRTString.cpp">
-      <Filter>mfs</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\jni\WiEngine\impl\mfs\PVRTResourceFile.cpp">
-      <Filter>mfs</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\jni\WiEngine\impl\nodes\com_wiyun_engine_nodes_TextBox.cpp">
       <Filter>nodes</Filter>
     </ClCompile>
@@ -2031,9 +2064,6 @@
     <ClCompile Include="..\..\jni\WiEngine\impl\types\wyPointList.cpp">
       <Filter>types</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\jni\WiEngine\impl\types\wyPVR.cpp">
-      <Filter>types</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\jni\WiEngine\impl\types\wyQuad2D.cpp">
       <Filter>types</Filter>
     </ClCompile>
@@ -2165,6 +2195,54 @@
     </ClCompile>
     <ClCompile Include="..\..\jni\WiEngine\impl\platform\windows\dllmain.cpp">
       <Filter>platform\windows</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jni\WiEngine\impl\skeletalanim\wySkeletalSprite.cpp">
+      <Filter>skeletalanim</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jni\WiEngine\impl\skeletalanim\wySkeleton.cpp">
+      <Filter>skeletalanim</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jni\WiEngine\impl\skeletalanim\wySkinAttachment.cpp">
+      <Filter>skeletalanim</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jni\WiEngine\impl\skeletalanim\wySlot.cpp">
+      <Filter>skeletalanim</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jni\WiEngine\impl\skeletalanim\wySlotTransform.cpp">
+      <Filter>skeletalanim</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jni\WiEngine\impl\skeletalanim\wySpineLoader.cpp">
+      <Filter>skeletalanim</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jni\WiEngine\impl\skeletalanim\wyTransform.cpp">
+      <Filter>skeletalanim</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jni\WiEngine\impl\skeletalanim\wyAttachment.cpp">
+      <Filter>skeletalanim</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jni\WiEngine\impl\skeletalanim\wyBone.cpp">
+      <Filter>skeletalanim</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jni\WiEngine\impl\skeletalanim\wyBoneTransform.cpp">
+      <Filter>skeletalanim</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jni\WiEngine\impl\skeletalanim\wySkeletalAnimation.cpp">
+      <Filter>skeletalanim</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jni\WiEngine\impl\skeletalanim\wySkeletalAnimationCache.cpp">
+      <Filter>skeletalanim</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jni\WiEngine\impl\json\wyJSONArray.cpp">
+      <Filter>json</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jni\WiEngine\impl\json\wyJSONObject.cpp">
+      <Filter>json</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jni\WiEngine\impl\json\wyJSONParser.cpp">
+      <Filter>json</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jni\WiEngine\impl\json\wyJSONValue.cpp">
+      <Filter>json</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

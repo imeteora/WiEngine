@@ -5,8 +5,8 @@
 namespace Performance {
 
     static void createButton(const char* label, wyLayer* layer, float x, float y, wyTargetSelector* ts) {
-		wyNinePatchSprite* normal1 = wyNinePatchSprite::make(wyTexture2D::makePNG(RES("R.drawable.btn_normal")), wyr(DP(9), DP(7), DP(22), DP(28)));
-		wyNinePatchSprite* pressed1 = wyNinePatchSprite::make(wyTexture2D::makePNG(RES("R.drawable.btn_pressed")), wyr(DP(9), DP(7), DP(22), DP(28)));
+		wyNinePatchSprite* normal1 = wyNinePatchSprite::make(wyTexture2D::make(RES("R.drawable.btn_normal")), wyr(DP(9), DP(7), DP(22), DP(28)));
+		wyNinePatchSprite* pressed1 = wyNinePatchSprite::make(wyTexture2D::make(RES("R.drawable.btn_pressed")), wyr(DP(9), DP(7), DP(22), DP(28)));
 		normal1->setContentSize(DP(300), DP(44));
 		pressed1->setContentSize(DP(300), DP(44));
         
@@ -42,7 +42,7 @@ namespace Performance {
 			m_count = 0;
 
 			// batch node
-			m_batchNode = wySpriteBatchNode::make(wyTexture2D::makePNG(RES("R.drawable.blocks")));
+			m_batchNode = wySpriteBatchNode::make(wyTexture2D::make(RES("R.drawable.blocks")));
 			m_batchNode->setPosition(0, 0);
 			addChildLocked(m_batchNode, -1);
 		}
@@ -90,7 +90,7 @@ namespace Performance {
 		}
 
 		void onAddSprite(wyTargetSelector* ts) {
-			wyTexture2D* tex = wyTexture2D::makePNG(RES("R.drawable.blocks"));
+			wyTexture2D* tex = wyTexture2D::make(RES("R.drawable.blocks"));
 			float size = DP(32.0f);
 			for(int i = 0; i < 50; i++) {
 				wySprite* s = wySprite::make(tex, wyr(wyMath::randMax(1) * size, wyMath::randMax(1) * size, size, size));
@@ -131,7 +131,7 @@ namespace Performance {
 		}
 
 		void onAddSprite(wyTargetSelector* ts) {
-			wyTexture2D* tex = wyTexture2D::makePNG(RES("R.drawable.blocks"));
+			wyTexture2D* tex = wyTexture2D::make(RES("R.drawable.blocks"));
 			float size = DP(32.0f);
 			for(int i = 0; i < 50; i++) {
 				wySprite* s = wySprite::make(tex, wyr(wyMath::randMax(1) * size, wyMath::randMax(1) * size, size, size));
@@ -158,7 +158,7 @@ namespace Performance {
 
 	public:
 		wyBigTMXTestLayer() {
-			wyTexture2D* tex = wyTexture2D::makePNG(RES("R.drawable.tileset0"));
+			wyTexture2D* tex = wyTexture2D::make(RES("R.drawable.tileset0"));
 			m_map = wyTMXTileMap::make(RES("R.raw.b0"), tex, NULL);
 			addChildLocked(m_map);
 
@@ -195,6 +195,67 @@ namespace Performance {
 	};
 
 	/////////////////////////////////////////////////////////////////////////////////
+
+	class wyRunSkeletalAnimationTestLayer : public wyLayer {
+	private:
+		wyLabel* m_countLabel;
+		vector<wySkeletalSprite*> m_sprites;
+		wySkeleton* m_skeleton;
+
+	public:
+		wyRunSkeletalAnimationTestLayer() {
+			// load skeleton
+			m_skeleton = wySpineLoader::loadSkeleton("spine/example-skeleton.json", false);
+			m_skeleton->retain();
+
+			// load animation
+			wySkeletalAnimation* anim = wySpineLoader::loadAnimation("spine/example-animation.json", false);
+			wySkeletalAnimationCache::getInstance()->addAnimation("walk", anim);
+
+			// add sprite button
+			createButton("Add 1 Sprites", this, wyDevice::winWidth / 2, wyDevice::winHeight - DP(40),
+					  wyTargetSelector::make(this, SEL(wyRunSkeletalAnimationTestLayer::onAddSprite)));
+
+			// count label
+			m_countLabel = wyLabel::make("0 Sprites", SP(16));
+			m_countLabel->setPosition(wyDevice::winWidth / 2, wyDevice::winHeight - DP(80));
+			m_countLabel->setColor(wyc3bRed);
+			addChildLocked(m_countLabel);
+
+			// start to update
+			wyTimer* timer = wyTimer::make(wyTargetSelector::make(this, SEL(wyRunSkeletalAnimationTestLayer::onUpdateSprite)));
+			scheduleLocked(timer);
+		}
+
+		virtual ~wyRunSkeletalAnimationTestLayer() {
+			m_skeleton->release();
+		}
+
+		void onUpdateSprite(wyTargetSelector* ts) {
+			for(vector<wySkeletalSprite*>::iterator iter = m_sprites.begin(); iter != m_sprites.end(); iter++) {
+				(*iter)->tick(ts->getDelta());
+			}
+		}
+
+		void onAddSprite(wyTargetSelector* ts) {
+			for(int i = 0; i < 1; i++) {
+				// create skeletal sprite and play animation
+				wySkeletalSprite* sprite = wySkeletalSprite::make(m_skeleton);
+				sprite->setPosition(wyMath::randMax(wyDevice::winWidth), wyMath::randMax(wyDevice::winHeight));
+				addChildLocked(sprite, -1);
+				sprite->playAnimation("walk");
+				sprite->setLoopCount(-1);
+				m_sprites.push_back(sprite);
+			}
+
+			// update count label
+			char buf[32];
+			sprintf(buf, "%ld Sprites", m_sprites.size());
+			m_countLabel->setText(buf);
+		}
+	};
+
+	/////////////////////////////////////////////////////////////////////////////////
 }
 
 using namespace Performance;
@@ -218,3 +279,4 @@ DEMO_ENTRY_IMPL(BatchRenderSpriteTest);
 DEMO_ENTRY_IMPL(BigTMXTest);
 DEMO_ENTRY_IMPL(RenderSpriteTest);
 DEMO_ENTRY_IMPL(RunActionTest);
+DEMO_ENTRY_IMPL(RunSkeletalAnimationTest);

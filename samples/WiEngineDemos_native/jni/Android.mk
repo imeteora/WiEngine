@@ -17,7 +17,7 @@ endef
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := wienginedemos
-LOCAL_LDLIBS := -L$(LOCAL_PATH)/../../../libs/$(TARGET_ARCH_ABI) -llog -ldl -lGLESv1_CM -lwiengine -llua -lchipmunk -lwisound -lbox2d -lwinetwork -ljson -liap
+LOCAL_LDLIBS := -L$(LOCAL_PATH)/../../../libs/$(TARGET_ARCH_ABI) -llog -ldl -lGLESv1_CM -lwiengine -llua -lchipmunk -lwisound -lbox2d -lwinetwork -liap
 LOCAL_C_INCLUDES := $(LOCAL_PATH)/Demos \
 	$(LOCAL_PATH)/../../../jni \
 	$(LOCAL_PATH)/../../../jni/chipmunk \
@@ -46,13 +46,15 @@ LOCAL_C_INCLUDES := $(LOCAL_PATH)/Demos \
 	$(LOCAL_PATH)/../../../jni/WiEngine/include/opengl \
 	$(LOCAL_PATH)/../../../jni/WiEngine/include/particle \
 	$(LOCAL_PATH)/../../../jni/WiEngine/include/persistence \
+	$(LOCAL_PATH)/../../../jni/WiEngine/include/skeletalanim \
 	$(LOCAL_PATH)/../../../jni/WiEngine/include/tmx \
 	$(LOCAL_PATH)/../../../jni/WiEngine/include/transitions \
 	$(LOCAL_PATH)/../../../jni/WiEngine/include/types \
 	$(LOCAL_PATH)/../../../jni/WiEngine/include/winetwork \
 	$(LOCAL_PATH)/../../../jni/WiEngine/include/wisound \
 	$(LOCAL_PATH)/../../../jni/WiEngine/include/utils \
-	$(LOCAL_PATH)/../../../jni/libxml2/include
+	$(LOCAL_PATH)/../../../jni/libxml2/include \
+	$(LOCAL_PATH)/../../../jni/libpvr
 LOCAL_SRC_FILES := $(call all-cpp-files-under,Demos)
 	
 include $(BUILD_SHARED_LIBRARY)

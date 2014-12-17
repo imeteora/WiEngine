@@ -347,4 +347,25 @@
 #include "wyImagePicker.h"
 #include "wyResourceDecoder.h"
 
+// json
+#include "wyJSONObject.h"
+#include "wyJSONArray.h"
+#include "wyJSONValue.h"
+#include "wyJSONParser.h"
+
+// skeletal animation
+#include "wyAttachment.h"
+#include "wyBone.h"
+#include "wyBoneTransform.h"
+#include "wySkeletalAnimation.h"
+#include "wySkeletalAnimationCache.h"
+#include "wySkeletalAnimationListener.h"
+#include "wySkeletalSprite.h"
+#include "wySkeleton.h"
+#include "wySkin.h"
+#include "wySlot.h"
+#include "wySlotTransform.h"
+#include "wySpineLoader.h"
+#include "wyTransform.h"
+
 #endif // __WiEngine_h__

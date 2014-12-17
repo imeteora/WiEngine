@@ -15,7 +15,7 @@
 
 <manifest 
 	xmlns:android="http://schemas.android.com/apk/res/android"
-	package="com.wiyun.engine" android:versionCode="66" android:versionName="3.10.2" android:installLocation="preferExternal">
+	package="com.wiyun.engine" android:versionCode="67" android:versionName="3.10.3" android:installLocation="preferExternal">
 	<uses-sdk android:minSdkVersion="5"></uses-sdk>
 	<uses-permission android:name="android.permission.INTERNET" />
 	<uses-permission android:name="android.permission.CAMERA" />
@@ -260,6 +260,13 @@
 				<category android:name="android.intent.category.TEST" />
 			</intent-filter>
 			<meta-data android:name="desc" android:resource="@string/SliderTest_desc"></meta-data>
+		</activity>
+		<activity android:name=".tests.node.SpineTest" android:label="Node/Spine">
+			<intent-filter>
+				<action android:name="android.intent.action.MAIN" />
+				<category android:name="android.intent.category.TEST" />
+			</intent-filter>
+			<meta-data android:name="desc" android:resource="@string/SpineTest_desc"></meta-data>
 		</activity>
 		<activity android:name=".tests.node.ToastTest" android:label="Node/Toast">
 			<intent-filter>
@@ -2041,6 +2048,13 @@
 				<category android:name="android.intent.category.TEST" />
 			</intent-filter>
 			<meta-data android:name="desc" android:resource="@string/RunActionTest_desc"></meta-data>
+		</activity>
+		<activity android:name=".tests.performance.RunSkeletalAnimationTest" android:label="Performance/Run Skeletal Animation">
+			<intent-filter>
+				<action android:name="android.intent.action.MAIN" />
+				<category android:name="android.intent.category.TEST" />
+			</intent-filter>
+			<meta-data android:name="desc" android:resource="@string/RunSkeletalAnimationTest_desc"></meta-data>
 		</activity>
 		
         <receiver android:name="com.wiyun.engine.iap.androidmarket.BillingReceiver">

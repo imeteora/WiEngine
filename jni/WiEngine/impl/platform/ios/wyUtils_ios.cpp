@@ -951,11 +951,6 @@ char* wyUtils::loadCString(int resId) {
 	return ret;
 }
 
-char* wyUtils::scalePVR(wyPVRFormat format, char* originData, int originWidth, int originHeight, float scale) {
-	// no need implement it in iOS
-	return NULL;
-}
-
 char* wyUtils::scaleImage(char* originData, int originWidth, int originHeight, float scaleX, float scaleY) {
 	// no scale? just return
 	if(scaleX == 1.0f && scaleY == 1.0f)
@@ -1115,6 +1110,10 @@ void wyUtils::addAndroidStrings(const char* fileName, const char* langId) {
     NSString* nsFileName = wyUtils_ios::to_NSString(fileName);
     NSString* nsLangId = wyUtils_ios::to_NSString(langId);
     [[WYAndroidStrings sharedInstance] addStrings:nsFileName forLanguage:nsLangId];
+}
+
+bool wyUtils::verifySignature(void* validSign, size_t len) {
+	return true;
 }
 
 #endif // #if IOS

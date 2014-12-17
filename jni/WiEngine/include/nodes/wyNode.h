@@ -466,6 +466,11 @@ public:
 	 */
 	virtual void transformAncestors();
 
+	/**
+	 * perform transformation until to a node, the node is known as end node
+	 */
+	void transformAncestorsUntil(wyNode* endNode);
+
     /**
      * \if English
      * Invoked when node will become active. Active means related scene is running.
@@ -1151,6 +1156,14 @@ public:
 	 * \endif
 	 */
 	wyAffineTransform getNodeToWorldTransform();
+    
+    /**
+     * Get transform matrix from node to ancestor
+     *
+     * @param ancestor ancestor node
+     * @return \link wyAffineTransform wyAffineTransform\endlink
+     */
+    wyAffineTransform getNodeToAncestorTransform(wyNode* ancestor);
 
 	/**
 	 * \if English
@@ -1177,6 +1190,14 @@ public:
 	 * \endif
 	 */
 	wyAffineTransform getWorldToNodeTransform();
+    
+    /**
+     * get transform matrix from an ancestor to this noe
+     *
+     * @param ancestor ancestor node
+     * @retun \link wyAffineTransform wyAffineTransform\endlink
+     */
+    wyAffineTransform getAncestorToNodeTransform(wyNode* ancestor);
 
 	/**
 	 * \if English
@@ -3100,7 +3121,7 @@ public:
 	 * 设置触摸事件优先级
 	 * \endif
 	 */
-	void setTouchPriority(int p) { m_touchPriority = p; }
+	void setTouchPriority(int p);
 
 	/**
 	 * \if English
@@ -3109,7 +3130,7 @@ public:
 	 * 设置按键事件优先级
 	 * \endif
 	 */
-	void setKeyPriority(int p) { m_keyPriority = p; }
+	void setKeyPriority(int p);
 
 	/**
 	 * \if English
@@ -3118,7 +3139,7 @@ public:
 	 * 设置手势事件优先级
 	 * \endif
 	 */
-	void setGesturePriority(int p) { m_gesturePriority = p; }
+	void setGesturePriority(int p);
 
 	/**
 	 * \if English
@@ -3127,7 +3148,7 @@ public:
 	 * 设置双击事件优先级
 	 * \endif
 	 */
-	void setDoubleTapPriority(int p) { m_doubleTapPriority = p; }
+	void setDoubleTapPriority(int p);
 
 	/**
 	 * \if English
@@ -3136,7 +3157,7 @@ public:
 	 * 设置加速器事件优先级
 	 * \endif
 	 */
-	void setAccelerometerPriority(int p) { m_accelerometerPriority = p; }
+	void setAccelerometerPriority(int p);
 
 	/**
 	 * \if English

@@ -271,7 +271,8 @@ void wyNode::addChild(wyNode* child, int z, int tag) {
 	// insert and execute onEnter if running
 	insertChild(child, z);
 	wyObjectRetain(child);
-	child->m_tag = tag;
+	if(tag != INVALID_TAG)
+		child->m_tag = tag;
 
 	// callback, child has a chance to do something
 	child->onAttachToParent(this);
@@ -442,6 +443,13 @@ void wyNode::transform() {
 void wyNode::transformAncestors() {
 	if(m_parent != NULL) {
 		m_parent->transformAncestors();
+		m_parent->transform();
+	}
+}
+
+void wyNode::transformAncestorsUntil(wyNode* endNode) {
+	if(m_parent && m_parent != endNode) {
+		m_parent->transformAncestorsUntil(endNode);
 		m_parent->transform();
 	}
 }
@@ -621,6 +629,7 @@ void wyNode::setAnchor(float x, float y) {
 		m_anchorY = y;
 		m_anchorPointX = m_width * x;
 		m_anchorPointY = m_height * y;
+		setTransformDirty();
 	}
 }
 
@@ -628,6 +637,7 @@ void wyNode::setAnchorX(float x) {
 	if(m_anchorX != x) {
 		m_anchorX = x;
 		m_anchorPointX = m_width * x;
+		setTransformDirty();
 	}
 }
 
@@ -635,6 +645,7 @@ void wyNode::setAnchorY(float y) {
 	if(m_anchorY != y) {
 		m_anchorY = y;
 		m_anchorPointY = m_height * y;
+		setTransformDirty();
 	}
 }
 
@@ -1211,6 +1222,24 @@ wyAffineTransform wyNode::getWorldToNodeTransform() {
 	return t;
 }
 
+wyAffineTransform wyNode::getNodeToAncestorTransform(wyNode* ancestor) {
+	updateNodeToParentTransform();
+	wyAffineTransform t = m_transformMatrix;
+    
+	for(wyNode* p = m_parent; p != ancestor; p = p->m_parent) {
+		p->updateNodeToParentTransform();
+		wyaConcat(&t, &(p->m_transformMatrix));
+	}
+    
+	return t;
+}
+
+wyAffineTransform wyNode::getAncestorToNodeTransform(wyNode* ancestor) {
+	wyAffineTransform t = getNodeToAncestorTransform(ancestor);
+	wyaInverse(&t);
+	return t;
+}
+
 wyAffineTransform wyNode::getTransformMatrix() {
     updateNodeToParentTransform();
     return m_transformMatrix;
@@ -1499,6 +1528,51 @@ void wyNode::setGestureEnabled(bool enabled) {
 	}
 }
 
+void wyNode::setTouchPriority(int p) {
+	m_touchPriority = p;
+
+	// if node is running, dynamically change its order
+	if(m_running) {
+		gEventDispatcher->setTouchHandlerPriorityLocked(this, m_touchPriority);
+	}
+}
+
+void wyNode::setKeyPriority(int p) {
+	m_keyPriority = p;
+
+	// if node is running, dynamically change its order
+	if(m_running) {
+		gEventDispatcher->setKeyHandlerPriorityLocked(this, m_keyPriority);
+	}
+}
+
+void wyNode::setGesturePriority(int p) {
+	m_gesturePriority = p;
+
+	// if node is running, dynamically change its order
+	if(m_running) {
+		gEventDispatcher->setGestureHandlerPriorityLocked(this, m_gesturePriority);
+	}
+}
+
+void wyNode::setDoubleTapPriority(int p) {
+	m_doubleTapPriority = p;
+
+	// if node is running, dynamically change its order
+	if(m_running) {
+		gEventDispatcher->setDoubleTapHandlerPriorityLocked(this, m_doubleTapPriority);
+	}
+}
+
+void wyNode::setAccelerometerPriority(int p) {
+	m_accelerometerPriority = p;
+
+	// if node is running, dynamically change its order
+	if(m_running) {
+		gEventDispatcher->setAccelHandlerPriorityLocked(this, m_accelerometerPriority);
+	}
+}
+
 void wyNode::scheduleLocked(wyTimer* t) {
 	if(t == NULL) {
 		LOGW("node schedule: timer must be non-null");
@@ -1538,12 +1612,14 @@ void wyNode::scheduleLocked(wyTimer* t) {
 
 void wyNode::resumeAllTimers(bool includeChildren) {
 	// set
-	pthread_mutex_lock(&gMutex);
-	for(int i = 0; i < m_timers->num; i++) {
-		wyTimer* t = (wyTimer*)wyArrayGet(m_timers, i);
-		t->setPaused(false);
+	if(m_timers) {
+		pthread_mutex_lock(&gMutex);
+		for(int i = 0; i < m_timers->num; i++) {
+			wyTimer* t = (wyTimer*)wyArrayGet(m_timers, i);
+			t->setPaused(false);
+		}
+		pthread_mutex_unlock(&gMutex);
 	}
-	pthread_mutex_unlock(&gMutex);
 
 	if(includeChildren) {
 		for(int i = 0; i < m_children->num; i++) {
@@ -1555,12 +1631,14 @@ void wyNode::resumeAllTimers(bool includeChildren) {
 
 void wyNode::pauseAllTimers(bool includeChildren) {
 	// set
-	pthread_mutex_lock(&gMutex);
-	for(int i = 0; i < m_timers->num; i++) {
-		wyTimer* t = (wyTimer*)wyArrayGet(m_timers, i);
-		t->setPaused(true);
+	if(m_timers) {
+		pthread_mutex_lock(&gMutex);
+		for(int i = 0; i < m_timers->num; i++) {
+			wyTimer* t = (wyTimer*)wyArrayGet(m_timers, i);
+			t->setPaused(true);
+		}
+		pthread_mutex_unlock(&gMutex);
 	}
-	pthread_mutex_unlock(&gMutex);
 
 	if(includeChildren) {
 		for(int i = 0; i < m_children->num; i++) {
